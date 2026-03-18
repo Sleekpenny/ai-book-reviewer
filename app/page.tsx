@@ -1,13 +1,19 @@
 import BookHero from '@/components/book-hero'
-import BookList from '@/components/book-list'
+import BookCard from '@/components/book-card'
+import { sampleBooks } from '@/lib/contants'
 import React from 'react'
 
 const Page = () => {
   return (
-    <>    
+    <div className='wrapper'>    
     <BookHero />
-    <BookList />
-    </>
+
+    <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 grid-cols-2 gap-5 mt-10">
+      {sampleBooks.map(( {slug, title, author, _id, coverURL} )=> (        
+          <BookCard title={title} key={_id} slug={slug} author={author} coverURL={coverURL} />
+      ))}
+    </div>
+    </div>
   )
 }
 

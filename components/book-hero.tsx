@@ -9,7 +9,7 @@ const BookHero = () => {
       ]
 
   return (
-    <div className="library-hero-card wrapper py-4 w-full justify-between">
+    <div className="library-hero-card py-4 w-full md justify-between md:flex-row flex-col gap-5 md:gap-0">
     {/* LEFT: Text + CTA */}
     <div className="library-hero-text">
       <h1 className="library-hero-title">Your Library</h1>
