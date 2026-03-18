@@ -1,8 +1,13 @@
+import BookHero from '@/components/book-hero'
+import BookList from '@/components/book-list'
 import React from 'react'
 
 const Page = () => {
   return (
-    <div className="text-xl underline text-blue-200">page</div>
+    <>    
+    <BookHero />
+    <BookList />
+    </>
   )
 }
 
