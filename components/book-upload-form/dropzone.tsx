@@ -39,7 +39,7 @@ export function Dropzone({
   return (
     <div
       className={cn(
-        "upload-dropzone border-2 border-dashed border-[var(--border-subtle)]",
+        "upload-dropzone border-2 border-dashed border-(--border-subtle) rounded-lg!",
         value && "upload-dropzone-uploaded"
       )}
       role="button"

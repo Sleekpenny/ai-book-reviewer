@@ -21,7 +21,8 @@ import {
   type UploadFormValues,
 } from "@/components/book-upload-form/schema"
 
-export default function BookUploadForm() {
+export default function UploadForm() {
+
   const form = useForm<UploadFormValues>({
     resolver: zodResolver(bookUploadSchema),
     defaultValues: {
@@ -48,7 +49,7 @@ export default function BookUploadForm() {
         <div className="loading-wrapper" aria-live="polite" aria-busy="true">
           <div className="loading-shadow-wrapper auth-shadow">
             <div className="loading-shadow">
-              <LoaderCircle className="loading-animation w-12 h-12 text-[var(--color-brand)]" />
+              <LoaderCircle className="loading-animation w-12 h-12 text-(--color-brand)" />
               <div className="text-center space-y-1">
                 <p className="loading-title">Creating your book…</p>
                 <p className="text-sm text-[var(--text-secondary)]">
