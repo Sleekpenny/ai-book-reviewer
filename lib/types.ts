@@ -28,7 +28,7 @@ export interface IBookSegment {
     clerkId:string;
     bookId:Types.ObjectId;
     content:string;
-    segmentIndex:string;
+    segmentIndex:number;
     pageNumber:number;
     wordCount:number;
     createdAt:Date;
@@ -45,4 +45,23 @@ export interface IVoiceSession {
     billingPeriodStart:Date;
     createdAt: Date;
     updatedAt: Date
+}
+
+export interface CreateBook {
+    clerkId: string;
+    title:string;
+    author:string;
+    voice?:string;
+    fileURL:string;
+    fileBlobKey:string;
+    coverURL?: string;
+    coverBlobKey?:string;
+    fileSize:number
+}
+
+export interface TextSegment {
+    text:string;
+    segmentIndex:string | number;
+    pageNumber?: number;
+    wordCount: string | number;
 }
