@@ -23,7 +23,7 @@ export default function UploadForm() {
       pdf: undefined as unknown as File,
       cover: undefined,
       title: "",
-      voice: "daniel",
+      voice: "rachel",
       author: "",
     },
     mode: "onSubmit",

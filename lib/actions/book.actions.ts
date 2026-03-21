@@ -2,7 +2,7 @@
  
 import { connectToDatabase } from "@/database/mongose";
 import { CreateBook, TextSegment} from "../types";
-import { generateSlug, seriaizeData } from "../utils";
+import { generateSlug, serializeData } from "../utils";
 import Book from "@/database/models/book.model";
 import BookSegment from "@/database/models/book-segment.model";
 
@@ -15,7 +15,7 @@ export const createBook = async (data: CreateBook) => {
        if (checkIfBookExistWithSlug) {
         return {
             success: true,
-            data: seriaizeData(checkIfBookExistWithSlug),
+            data: serializeData(checkIfBookExistWithSlug),
             alreadyExits: true
         }
        }
@@ -23,7 +23,7 @@ export const createBook = async (data: CreateBook) => {
        const createNewBook = await Book.create({...data, slug, totalSegments: 0})
        return {
         success: true,
-        data: seriaizeData(createNewBook),
+        data: serializeData(createNewBook),
         alreadyExits: false,
        }
     } catch (e) { 
@@ -72,7 +72,7 @@ export const checkIfBookExit = async (title: string) => {
         if(existingBookWithSlug) {
             return {
                 exists: true, 
-                book: seriaizeData(existingBookWithSlug)
+                book: serializeData(existingBookWithSlug)
             }
         }
 

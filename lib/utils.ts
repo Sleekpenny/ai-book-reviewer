@@ -2,6 +2,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { TextSegment } from './types';
+import { DEFAULT_VOICE, voiceOptions } from './contants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -17,7 +18,7 @@ export function generateSlug(text:string):string {
   .replace(/^-+|-+$/g, ''); // Remove leadig/trailing hyhens
 }
 
-export const seriaizeData = <T>(data: T):T => {
+export const serializeData = <T>(data: T):T => {
   return JSON.parse(JSON.stringify(data));
 }
 
@@ -88,71 +89,87 @@ export const escapeRegex = (str: string): string => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
+function loadPdfjsFromCDN(): Promise<any> {
+  return new Promise((resolve, reject) => {
+    // If already loaded, reuse it
+    if ((window as any).pdfjsLib) {
+      return resolve((window as any).pdfjsLib);
+    }
+ 
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      const pdfjsLib = (window as any).pdfjsLib;
+      if (!pdfjsLib) return reject(new Error('pdfjsLib not found on window after script load'));
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve(pdfjsLib);
+    };
+    script.onerror = () => reject(new Error('Failed to load pdf.js from CDN'));
+    document.head.appendChild(script);
+  });
+}
+
 export async function parsePDFFile(file: File) {
   try {
-    const pdfjsLib = await import('pdfjs-dist');
-
-    if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-          'pdfjs-dist/build/pdf.worker.min.mjs',
-          import.meta.url,
-      ).toString();
-    }
-
+    // Load pdfjs outside of webpack — bypasses the Object.defineProperty crash
+    const pdfjsLib = await loadPdfjsFromCDN();
+ 
     // Read file as array buffer
     const arrayBuffer = await file.arrayBuffer();
-
+ 
     // Load PDF document
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdfDocument = await loadingTask.promise;
-
+ 
     // Render first page as cover image
     const firstPage = await pdfDocument.getPage(1);
-    const viewport = firstPage.getViewport({ scale: 2 }); // 2x scale for better quality
-
+    const viewport = firstPage.getViewport({ scale: 2 });
+ 
     const canvas = document.createElement('canvas');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     const context = canvas.getContext('2d');
-
+ 
     if (!context) {
       throw new Error('Could not get canvas context');
     }
-
+ 
     await firstPage.render({
       canvasContext: context,
       viewport: viewport,
-      canvas,
     }).promise;
-
+ 
     // Convert canvas to data URL
     const coverDataURL = canvas.toDataURL('image/png');
-
+ 
     // Extract text from all pages
     let fullText = '';
-
+ 
     for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
       const textContent = await page.getTextContent();
       const pageText = textContent.items
-          .filter((item) => 'str' in item)
-          .map((item) => (item as { str: string }).str)
-          .join(' ');
+        .filter((item) => 'str' in item)
+        .map((item) => item.str)
+        .join(' ');
       fullText += pageText + '\n';
     }
-
+ 
     // Split text into segments for search
     const segments = splitIntoSegments(fullText);
-
+ 
     // Clean up PDF document resources
     await pdfDocument.destroy();
-
+ 
     return {
       content: segments,
       cover: coverDataURL,
     };
   } catch (error) {
     console.error('Error parsing PDF:', error);
-    throw new Error(`Failed to parse PDF file: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Failed to parse PDF file: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }

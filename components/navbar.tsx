@@ -9,7 +9,8 @@ import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/ne
 
 const Navbar = () => {
   const pathName = usePathname();
-  const { user } = useUser()
+  const { user } = useUser();
+  console.log('User credentials', user)
 
   const navItems = [
     { href: "/", label: "Library" },
@@ -50,8 +51,8 @@ const Navbar = () => {
           })}
         </nav>
 
-        <div className="flex items-center gap-7.5">
-          <Show when="signed-out">
+        <div className="flex items-center gap-7.5 text-blackalign-items-start">
+          <Show when="signed-out" >
             <SignInButton mode="modal" />
             <SignUpButton />
           </Show>
