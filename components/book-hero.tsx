@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import Link from "next/link";
 
 const BookHero = () => {
     const reviewOrder = [
@@ -17,10 +18,10 @@ const BookHero = () => {
         Convert your books into interactive AI conversations.<br />
         Listen, learn, and discuss your favorite reads.
       </p>
-      <button className="library-cta-primary w-fit">
+      <Link href="/books/new" className="library-cta-primary w-fit">
         <span className="text-xl">+</span>
         Add new book
-      </button>
+      </Link>
     </div>
 
     {/* CENTER: Illustration Desktop*/}

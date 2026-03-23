@@ -29,7 +29,7 @@ export const createBook = async (data: CreateBook) => {
     } catch (e) { 
         return {
             success: false,
-            error: e
+            error: console.log('Error in creating a book fom the action file', e)
         }
     }
 } 
@@ -87,4 +87,23 @@ export const checkIfBookExit = async (title: string) => {
         }
     }
 
+}
+
+export const getAllBooks = async () => {
+    try {
+        await connectToDatabase();
+
+        const getBooks =  await Book.find().sort({ createdAt: -1}).lean();
+        return {
+            success: true,
+            data: serializeData(getBooks)
+        }
+
+    } catch (e) {
+        console.error('Error getting books from database', e);
+        return {
+            success: false,
+            error: e
+        }
+    }
 }

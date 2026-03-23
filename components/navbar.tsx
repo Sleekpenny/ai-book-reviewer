@@ -10,7 +10,6 @@ import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/ne
 const Navbar = () => {
   const pathName = usePathname();
   const { user } = useUser();
-  console.log('User credentials', user)
 
   const navItems = [
     { href: "/", label: "Library" },
