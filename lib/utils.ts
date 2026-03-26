@@ -99,7 +99,7 @@ function loadPdfjsFromCDN(): Promise<any> {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
     script.onload = () => {
-      const pdfjsLib = (window as any).pdfjsLib;
+      const pdfjsLib = (window as unknown).pdfjsLib;
       if (!pdfjsLib) return reject(new Error('pdfjsLib not found on window after script load'));
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';

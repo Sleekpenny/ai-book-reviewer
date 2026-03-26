@@ -12,5 +12,5 @@ const VoiceSegmentSchema = new Schema<IVoiceSession>({
 
 VoiceSegmentSchema.index({ clerkId:1, billingPeriodStart: 1})
 
-const VoiceSesion = models.VoiceSession || model<IVoiceSession>('VoiceSesion', VoiceSegmentSchema);
-export default VoiceSesion
+const VoiceSession = models.VoiceSession || model<IVoiceSession>('VoiceSession', VoiceSegmentSchema);
+export default VoiceSession

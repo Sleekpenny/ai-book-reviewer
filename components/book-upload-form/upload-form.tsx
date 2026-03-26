@@ -112,11 +112,11 @@ export default function UploadForm() {
         fileSize: pdfFile.size,
       });
 
-      console.log('submitting book', userId, data.title, data.author, data.voice, uploadPDFBlob.url, uploadPDFBlob.pathname, _coverUrl, pdfFile.size)
+      if (book.success) toast.success('Book uploaded successfully');
       if (!book.success) throw new Error("Failed to create book");
       if (book.alreadyExits) {
         toast.info("Book already exists");
-        router.push(`/books/${checkIfBookExist.book.slug}`);
+        router.push(`/books/${book.data.slug}`);
         form.reset();
         return;
       }
@@ -126,10 +126,12 @@ export default function UploadForm() {
         userId,
         parsedPDF.content,
       );
+      
       if (!segments.success) {
         toast.error("Failed to save book segments");
         throw new Error("Failed to save book segments");
       }
+
 
       form.reset();
       router.push("/");

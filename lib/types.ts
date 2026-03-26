@@ -13,7 +13,7 @@ export interface IBook {
     title: string;
     slug: string;
     author: string;
-    persona?: string;
+    voice?: string;
     fileURL: string;
     fileBlobKey: string;
     coverURL: string;
@@ -64,4 +64,22 @@ export interface TextSegment {
     segmentIndex:string | number;
     pageNumber?: number;
     wordCount: string | number;
+}
+
+export interface Messages {
+    role:string;
+    content: string
+}
+
+export interface TranscriptProps {
+    messages?: Messages[];
+    currentMessage?: string;
+    currentUserMessage?: string;
+  }
+
+export interface StartSessionResult {
+    success:boolean;
+    sessionId: string;
+    maxDurationMinutes?: number;
+    error?: string;
 }
