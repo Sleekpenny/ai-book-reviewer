@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import type { UploadFormValues } from "./schema"
 
 const maleVoices: Array<{
-  id: UploadFormValues["voice"]
+  id: UploadFormValues["persona"]
   name: string
   hint: string
 }> = [
@@ -15,7 +15,7 @@ const maleVoices: Array<{
 ]
 
 const femaleVoices: Array<{
-  id: UploadFormValues["voice"]
+  id: UploadFormValues["persona"]
   name: string
   hint: string
 }> = [
@@ -30,11 +30,11 @@ function VoiceOption({
   selected,
   onSelect,
 }: {
-  id: UploadFormValues["voice"]
+  id: UploadFormValues["persona"]
   name: string
   hint: string
   selected: boolean
-  onSelect: (id: UploadFormValues["voice"]) => void
+  onSelect: (id: UploadFormValues["persona"]) => void
 }) {
   return (
     <button
@@ -48,11 +48,11 @@ function VoiceOption({
     >
       <div className="flex flex-col items-start min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-base font-semibold text-[var(--text-primary)]">
+          <span className="text-base font-semibold text-(--text-primary">
             {name}
           </span>
         </div>
-        <span className="text-sm text-[var(--text-secondary)] line-clamp-2">
+        <span className="text-sm text-(--text-secondary) line-clamp-2">
           {hint}
         </span>
       </div>
@@ -64,15 +64,15 @@ export function VoiceSelector({
   value,
   onChange,
 }: {
-  value: UploadFormValues["voice"]
-  onChange: (value: UploadFormValues["voice"]) => void
+  value: UploadFormValues["persona"]
+  onChange: (value: UploadFormValues["persona"]) => void
 }) {
   return (
     <div className="space-y-5">
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Upload className="w-4 h-4 text-[var(--text-secondary)]" />
-          <p className="text-sm font-semibold text-[var(--text-secondary)]">
+          <Upload className="w-4 h-4 text-(--text-secondary)" />
+          <p className="text-sm font-semibold text-(--text-secondary)">
             Male voices
           </p>
         </div>
@@ -92,8 +92,8 @@ export function VoiceSelector({
 
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Upload className="w-4 h-4 text-[var(--text-secondary)]" />
-          <p className="text-sm font-semibold text-[var(--text-secondary)]">
+          <Upload className="w-4 h-4 text-(--text-secondary)" />
+          <p className="text-sm font-semibold text-(--text-secondary)">
             Female voices
           </p>
         </div>

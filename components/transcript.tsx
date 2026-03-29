@@ -16,7 +16,7 @@ export default function Transcript({ messages = [], currentMessage = '', current
 
   return (
     <div className="transcript-container">
-      {!hasMessages ? (
+      {!hasMessages ? ( 
         // Empty State
         <div className="transcript-empty">
           {/* Mic Icon */}
@@ -36,7 +36,7 @@ export default function Transcript({ messages = [], currentMessage = '', current
             </p>
           </div>
         </div>
-      ) : (
+      ) : (  
         // Messages List
         <div className="transcript-messages">
           {/* Render existing messages */}

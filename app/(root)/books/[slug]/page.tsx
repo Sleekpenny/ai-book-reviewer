@@ -20,6 +20,7 @@ const Page = async ({ params }: { params: Promise<{ slug: string }> }) => {
         redirect('/')
     }
     const result = data.book;
+    console.log(data.book)
 
 
     return (

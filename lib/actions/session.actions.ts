@@ -25,7 +25,7 @@ import { getCurrentBillingPeriodStart } from "../contants";
     }
  }
 
- export const endVoiceSesion = async (sessionId:string, durationSeconds: number )=> {
+ export const endVoiceSession = async (sessionId:string, durationSeconds: number )=> {
 
     try {
         await connectToDatabase();

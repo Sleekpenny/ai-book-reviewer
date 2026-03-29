@@ -19,7 +19,7 @@ export const bookUploadSchema = z.object({
     .optional(),
   title: z.string().min(1, "Title is required."),
   author: z.string().min(1, "Author name is required."),
-  voice: z.enum(VOICE_IDS, { message: "Please choose an assistant voice." }),
+  persona: z.enum(VOICE_IDS, { message: "Please choose an assistant voice." }),
 })
 
 export type UploadFormValues = z.infer<typeof bookUploadSchema>

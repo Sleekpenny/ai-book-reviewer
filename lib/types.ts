@@ -13,7 +13,7 @@ export interface IBook {
     title: string;
     slug: string;
     author: string;
-    voice?: string;
+    persona?: string;
     fileURL: string;
     fileBlobKey: string;
     coverURL: string;
@@ -51,7 +51,7 @@ export interface CreateBook {
     clerkId: string;
     title:string;
     author:string;
-    voice?:string;
+    persona?:string;
     fileURL:string;
     fileBlobKey:string;
     coverURL?: string;

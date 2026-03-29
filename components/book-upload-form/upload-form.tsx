@@ -36,7 +36,7 @@ export default function UploadForm() {
       pdf: undefined as unknown as File,
       cover: undefined,
       title: "",
-      voice: "rachel",
+      persona: "rachel",
       author: "",
     },
     mode: "onSubmit",
@@ -105,7 +105,7 @@ export default function UploadForm() {
         clerkId: userId,
         title: data.title,
         author: data.author,
-        voice: data.voice,
+        persona: data.persona,
         fileURL: uploadPDFBlob.url,
         fileBlobKey: uploadPDFBlob.pathname,
         coverURL: _coverUrl,
@@ -244,7 +244,7 @@ export default function UploadForm() {
 
           <FormField
             control={form.control}
-            name="voice"
+            name="persona"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="form-label">
