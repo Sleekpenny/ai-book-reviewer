@@ -257,8 +257,12 @@ export const useVapi = (book: IBook) => {
                 }
             })
         }catch (e) {
-            toast.error(`Unabe to start voice session ${e}`);
+            if(sessionIdRef.current) {
+                endVoiceSession(sessionIdRef.current, 0).catch((endErr) => console.error('failed to rollback voice session after start failure: endErr'));
+                sessionIdRef.current = null;
+            }
             setStatus('idle');
+            setLimitError(`Unabe to start voice session ${e}`);
         }
     }, [book._id, book.title, book.author, voice, userId])
 

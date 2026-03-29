@@ -2,9 +2,10 @@
  
 import { connectToDatabase } from "@/database/mongose";
 import { CreateBook, TextSegment} from "../types";
-import { generateSlug, serializeData } from "../utils";
+import { escapeRegex, generateSlug, serializeData } from "../utils";
 import Book from "@/database/models/book.model";
 import BookSegment from "@/database/models/book-segment.model";
+import mongoose from "mongoose";
 
 export const createBook = async (data: CreateBook) => {
     try {
@@ -130,3 +131,58 @@ export const getBookBySlug = async (slug:string) => {
         }
     }
 }
+
+export const searchBookSegmets = async (bookId:string, query:string, limit:number = 5) => {
+    try{
+        await connectToDatabase();        
+        console.log(`Searching for: "${query}" in book ${bookId}`);
+        const bookObjectId = new mongoose.Types.ObjectId(bookId);
+
+        let segments: Record<string, unknown>[] = [];
+    
+    try {
+        segments = await BookSegment.find({
+            bookId: bookObjectId,
+            $text: { $search: query },
+        })
+            .select('_id bookId content segmentIndex pageNumber wordCount')
+            .sort({ score: { $meta: 'textScore' } })
+            .limit(limit)
+            .lean();
+    } catch {
+        // Text index may not exist — fall through to regex fallback
+        segments = [];
+    }
+
+       // Fallback: regex search matching ANY keyword
+       if (segments.length === 0) {
+        const keywords = query.split(/\s+/).filter((k) => k.length > 2);
+        const pattern = keywords.map(escapeRegex).join('|');
+
+        segments = await BookSegment.find({
+            bookId: bookObjectId,
+            content: { $regex: pattern, $options: 'i' },
+        })
+            .select('_id bookId content segmentIndex pageNumber wordCount')
+            .sort({ segmentIndex: 1 })
+            .limit(limit)
+            .lean();
+    }
+
+    console.log(`Search complete. Found ${segments.length} results`);
+
+    return {
+        success: true,
+        data: serializeData(segments),
+    };
+
+} catch (e) {
+    console.error('Error searching segments:', e);
+    return {
+        success: false,
+        error: (e as Error).message,
+        data: [],
+    };
+}
+}
+    

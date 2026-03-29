@@ -83,3 +83,17 @@ export interface StartSessionResult {
     maxDurationMinutes?: number;
     error?: string;
 }
+
+export interface EndSessionResult {
+    success: boolean;
+    error?: string
+}
+
+// export interface SessionCheckResult {
+//     allowed: boolean;
+//     currentCount: number;
+//     limit: number;
+//     pan: PlanType;
+//     maxDurationMinutes: number;
+//     error?: string;
+// }
