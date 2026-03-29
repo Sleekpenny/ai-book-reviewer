@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -92,6 +93,7 @@ export const escapeRegex = (str: string): string => {
 function loadPdfjsFromCDN(): Promise<any> {
   return new Promise((resolve, reject) => {
     // If already loaded, reuse it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).pdfjsLib) {
       return resolve((window as any).pdfjsLib);
     }
@@ -99,7 +101,7 @@ function loadPdfjsFromCDN(): Promise<any> {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
     script.onload = () => {
-      const pdfjsLib = (window as unknown).pdfjsLib;
+      const pdfjsLib = (window as any).pdfjsLib;
       if (!pdfjsLib) return reject(new Error('pdfjsLib not found on window after script load'));
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -150,8 +152,8 @@ export async function parsePDFFile(file: File) {
       const page = await pdfDocument.getPage(pageNum);
       const textContent = await page.getTextContent();
       const pageText = textContent.items
-        .filter((item) => 'str' in item)
-        .map((item) => item.str)
+        .filter((item: any) => 'str' in item)
+        .map((item: any) => item.str)
         .join(' ');
       fullText += pageText + '\n';
     }
