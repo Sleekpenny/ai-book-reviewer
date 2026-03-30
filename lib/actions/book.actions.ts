@@ -37,7 +37,7 @@ export const createBook = async (data: CreateBook) => {
         const plan = await getUserPlan();
         const limits = PLAN_LIMITS[plan];
 
-        const bookCount = await Book.countDocuments({ clerkId: userId });
+        const bookCount = await Book.countDocuments({ clerkId: data.clerkId });
         if (bookCount >= limits.maxBooks) {
             const { revalidatePath } = await import("next/cache");
             revalidatePath("/");
