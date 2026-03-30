@@ -113,8 +113,13 @@ export default function UploadForm() {
       });
 
       if (book.success) toast.success('Book uploaded successfully');
-      if (!book.success) throw new Error("Failed to create book");
-      if (book.alreadyExits) {
+      if (!book.success) {
+        toast.error(book.error as string || "Failed to create book");
+        if (book.isBillingError) {
+          router.push('/subscriptions')
+        }
+      } 
+      if (book.alreadyExists) {
         toast.info("Book already exists");
         router.push(`/books/${book.data.slug}`);
         form.reset();

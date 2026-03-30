@@ -3,6 +3,8 @@ import BookCard from '@/components/book-card'
 import React from 'react'
 import { getAllBooks } from '@/lib/actions/book.actions'
 
+export const dynamic = 'force-dynamic'
+
 const Page = async () => {
   const books = await getAllBooks();
   const booksData = books.success ? books.data ?? [] : [];

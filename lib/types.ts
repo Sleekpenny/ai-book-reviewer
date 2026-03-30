@@ -78,10 +78,11 @@ export interface TranscriptProps {
   }
 
 export interface StartSessionResult {
-    success:boolean;
-    sessionId: string;
+    success: boolean;
+    sessionId?: string;
     maxDurationMinutes?: number;
     error?: string;
+    isBillingError?: boolean;
 }
 
 export interface EndSessionResult {

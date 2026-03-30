@@ -13,7 +13,6 @@ export const POST = async (request: Request): Promise<NextResponse>=> {
             body, 
             request, 
             onBeforeGenerateToken: async () => {const { userId } = await auth()            
-            console.log('id from the route file', userId)
             if(!userId) {
                 throw new Error("Unauthorized: User not authenticated");
             }
