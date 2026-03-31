@@ -5,11 +5,35 @@ import { IBook } from '@/lib/types'
 import { Mic, MicOff } from 'lucide-react';
 import Transcript from './transcript'
 import Image from 'next/image' 
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import {useRouter} from "next/navigation";
 
 const VapiControls = ( {book}: {book: IBook}) => {
-
-    const {status, messages, isActive, currentMessage, currentUserMessage, duration, start, stop, clearErrors, limitError } = useVapi(book)
+ 
   
+    const {status, messages, isActive, currentMessage, currentUserMessage, duration, start, stop, clearErrors, limitError, isBillingError, maxDurationSeconds  } = useVapi(book);
+    const router = useRouter();
+
+    useEffect(() => {
+      if (limitError) {
+          toast.error(limitError);
+          if (isBillingError) {
+              router.push("/subscriptions");
+          } else {
+              router.push("/");
+          }
+          clearErrors();
+      }
+  }, [isBillingError, limitError, router, clearErrors]);
+  
+    const formatDuration = (seconds: number) => {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+
     return (
           <div className=" space-y-4">
             <div className="vapi-header-card">
@@ -27,8 +51,11 @@ const VapiControls = ( {book}: {book: IBook}) => {
                   />
                   
                   <div className="vapi-mic-wrapper relative">
+                  {isActive && (status === 'speaking' || status === 'thinking') && (
+                                <div className="absolute inset-0 rounded-full bg-white animate-ping opacity-75" />
+                            )}
                     <button 
-                      className="vapi-mic-btn vapi-mic-btn-inactive"
+                      className={`vapi-mic-btn shadow-md w-15! h-15! z-10 ${isActive ? 'vapi-mic-btn-active' : 'vapi-mic-btn-inactive'}`}
                       aria-label="Toggle microphone"
                       onClick={isActive ? start : stop } disabled={ status === 'connecting...' }
                     >
@@ -71,7 +98,7 @@ const VapiControls = ( {book}: {book: IBook}) => {
                     {/* Timer */}
                     <div className="vapi-badge-ai">
                       <span className="vapi-badge-ai-text text-(--success) tabular-nums">
-                        0:00/15:00
+                      {formatDuration(duration)}/{formatDuration(maxDurationSeconds)}
                       </span>
                     </div>
                   </div>

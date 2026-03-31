@@ -4,9 +4,9 @@ import { DEFAULT_VOICE, VOICE_SETTINGS } from "@/lib/contants";
 import { IBook, Messages } from "@/lib/types";
 import { useAuth } from "@clerk/nextjs";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from 'sonner';
 import  Vapi from '@vapi-ai/web'
 import { getVoice } from '@/lib/utils';
+import { useSubscription } from './usesubscriptions';
 
 export type CallStatus = 'idle' | 'connecting...' | 'starting' | 'listening' | 'thinking' | 'speaking';
 
@@ -41,6 +41,7 @@ let vapi: InstanceType<typeof Vapi>
 export const useVapi = (book: IBook) => {
 
     const { userId } = useAuth();
+    const { limits } = useSubscription();
 
     const [status, setStatus ] = useState<CallStatus>('idle');
     const [messages, setMessages] = useState<Messages[]>([]);
@@ -48,6 +49,7 @@ export const useVapi = (book: IBook) => {
     const [currentUserMessage, setCurrentUserMessage] = useState('');
     const [duration, setDuration] = useState(0);
     const [limitError, setLimitError] = useState<string | null>(null);
+    const [isBillingError, setIsBillingError] = useState(false);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const startTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -58,6 +60,9 @@ export const useVapi = (book: IBook) => {
     const bookRef = useLatestRef(book);
     const durationRef = useLatestRef(duration);
     const voice = book.persona || DEFAULT_VOICE;
+
+    const maxDurationSeconds = limits?.maxDurationPerSession ? limits.maxDurationPerSession * 60 : (15 * 60);
+    const maxDurationRef = useLatestRef(maxDurationSeconds);
 
     const isActive = status === 'listening' || status === 'thinking' || status === 'speaking' || 'starting' ;
 
@@ -247,13 +252,13 @@ export const useVapi = (book: IBook) => {
                     title: book.title, author: book.author, bookId: book._id
                 },
                 voice: {
-                    provider: `11labs` as const,
-                    voiceId:getVoice(voice).id,
-                    model: "eleven_turbo_v2_5" as const,
+                    provider: '11labs' as const,
+                    voiceId: getVoice(voice).id,
+                    model: 'eleven_turbo_v2_5' as const,
                     stability: VOICE_SETTINGS.stability,
                     similarityBoost: VOICE_SETTINGS.similarityBoost,
                     style: VOICE_SETTINGS.style,
-                    useSpeakerBoost: VOICE_SETTINGS.useSpeakerBoost
+                    useSpeakerBoost: VOICE_SETTINGS.useSpeakerBoost,
                 }
             })
         }catch (e) {
@@ -266,14 +271,17 @@ export const useVapi = (book: IBook) => {
         }
     }, [book._id, book.title, book.author, voice, userId])
 
-    const stop = async() => {
+    const stop = useCallback(() => {
         isStoppingRef.current = true;
-        await getVapi().stop();
-    }
+        getVapi().stop();
+    }, [])
 
-    const clearErrors = async() => {}
+    const clearErrors = useCallback(() => {
+        setLimitError(null);
+        setIsBillingError(false);
+    },[])
 
     return {
-        status, messages, isActive, currentMessage, currentUserMessage, duration, start, stop, clearErrors, limitError
+        status, messages, isActive, currentMessage, currentUserMessage, duration, start, stop, clearErrors, limitError, maxDurationSeconds, isBillingError
     }
 }
