@@ -1,43 +1,51 @@
 import { NextResponse } from 'next/server';
-
 import { searchBookSegments } from '@/lib/actions/book.actions';
 
-// Helper function to process book search logic
+// ✅ Wrap any async operation with a timeout to prevent Vapi from hanging
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+    return Promise.race([
+        promise,
+        new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+    ]);
+}
+
 async function processBookSearch(bookId: unknown, query: unknown) {
-    // Validate inputs before conversion to prevent null/undefined becoming "null"/"undefined" strings
     if (bookId == null || query == null || query === '') {
-        return { result: 'Missing bookId or query' };
+        return { result: 'Missing bookId or query.' };
     }
 
-    // Convert bookId to string
-    const bookIdStr = String(bookId);
+    const bookIdStr = String(bookId).trim();
     const queryStr = String(query).trim();
 
-    // Additional validation after conversion
     if (!bookIdStr || bookIdStr === 'null' || bookIdStr === 'undefined' || !queryStr) {
-        return { result: 'Missing bookId or query' };
+        return { result: 'Missing bookId or query.' };
     }
 
-    // Execute search
-    const searchResult = await searchBookSegments(bookIdStr, queryStr, 3);
+    console.log(`[search-book] Searching bookId="${bookIdStr}" query="${queryStr}"`);
 
-    // Return results
+    // ✅ 8 second timeout — prevents Vapi from hanging and killing the session
+    const searchResult = await withTimeout(
+        searchBookSegments(bookIdStr, queryStr, 3),
+        8000,
+        { success: false, data: [], error: 'Search timed out' }
+    );
+
     if (!searchResult.success || !searchResult.data?.length) {
-        return { result: 'No information found about this topic in the book.' };
+        console.warn('[search-book] No results found:', searchResult.error);
+        return {
+            result: "I don't have specific information about that in the book's content. Let me share what I know from general knowledge about this topic.",
+        };
     }
 
     const combinedText = searchResult.data
         .map((segment) => (segment as { content: string }).content)
         .join('\n\n');
 
+    console.log(`[search-book] Found ${searchResult.data.length} segments, total chars: ${combinedText.length}`);
+
     return { result: combinedText };
 }
 
-export async function GET() {
-    return NextResponse.json({ status: 'ok' });
-}
-
-// Parse tool arguments that may arrive as a JSON string or an object
 function parseArgs(args: unknown): Record<string, unknown> {
     if (!args) return {};
     if (typeof args === 'string') {
@@ -46,17 +54,20 @@ function parseArgs(args: unknown): Record<string, unknown> {
     return args as Record<string, unknown>;
 }
 
+export async function GET() {
+    return NextResponse.json({ status: 'ok' });
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        console.log('Vapi search-book request:', JSON.stringify(body, null, 2));
+        console.log('[search-book] Incoming request body:', JSON.stringify(body, null, 2));
 
-        // Support multiple Vapi formats
         const functionCall = body?.message?.functionCall;
         const toolCallList = body?.message?.toolCallList || body?.message?.toolCalls;
 
-        // Handle single functionCall format
+        // ── Single functionCall format ──────────────────────────────────────
         if (functionCall) {
             const { name, parameters } = functionCall;
             const parsed = parseArgs(parameters);
@@ -69,10 +80,18 @@ export async function POST(request: Request) {
             return NextResponse.json({ result: `Unknown function: ${name}` });
         }
 
-        // Handle toolCallList format (array of calls)
+        // ── toolCallList format ─────────────────────────────────────────────
         if (!toolCallList || toolCallList.length === 0) {
+            // ✅ Some Vapi versions send the call directly on body (no message wrapper)
+            if (body?.function?.name === 'searchBook' || body?.name === 'searchBook') {
+                const args = parseArgs(body?.function?.arguments || body?.arguments || body?.parameters);
+                const result = await processBookSearch(args.bookId, args.query);
+                return NextResponse.json(result);
+            }
+
+            console.warn('[search-book] No tool calls found in request');
             return NextResponse.json({
-                results: [{ result: 'No tool calls found' }],
+                results: [{ result: 'No tool calls found in the request.' }],
             });
         }
 
@@ -92,10 +111,14 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ results });
+
     } catch (error) {
-        console.error('Vapi search-book error:', error);
+        console.error('[search-book] Error processing request:', error);
+        // ✅ Always return a valid response so Vapi doesn't kill the session
         return NextResponse.json({
-            results: [{ result: 'Error processing request' }],
+            results: [{
+                result: "I'm having trouble accessing the book content right now. Let me answer based on what I know about this book.",
+            }],
         });
     }
 }

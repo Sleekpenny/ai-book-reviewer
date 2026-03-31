@@ -64,7 +64,7 @@ export const useVapi = (book: IBook) => {
     const maxDurationSeconds = limits?.maxDurationPerSession ? limits.maxDurationPerSession * 60 : (15 * 60);
     const maxDurationRef = useLatestRef(maxDurationSeconds);
 
-    const isActive = status === 'listening' || status === 'thinking' || status === 'speaking' || 'starting' ;
+    const isActive = status === 'listening' || status === 'thinking' || status === 'speaking' || status === 'starting' ;
 
     useEffect(() => {
         const handlers = {

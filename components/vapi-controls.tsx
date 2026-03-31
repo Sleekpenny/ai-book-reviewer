@@ -9,6 +9,15 @@ import { useEffect } from 'react';
 import { toast } from 'sonner';
 import {useRouter} from "next/navigation";
 
+const statusDotClass: Record<string, string> = {
+  'idle': 'vapi-status-dot-ready',
+  'connecting...': 'vapi-status-dot-connecting',
+  'starting': 'vapi-status-dot-connecting',
+  'listening': 'vapi-status-dot-listening',
+  'thinking': 'vapi-status-dot-thinking',
+  'speaking': 'vapi-status-dot-speaking',
+};
+
 const VapiControls = ( {book}: {book: IBook}) => {
  
   
@@ -33,6 +42,7 @@ const VapiControls = ( {book}: {book: IBook}) => {
       return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const isConnecting = status === 'connecting...' || status === 'starting';
 
     return (
           <div className=" space-y-4">
@@ -57,7 +67,7 @@ const VapiControls = ( {book}: {book: IBook}) => {
                     <button 
                       className={`vapi-mic-btn shadow-md w-15! h-15! z-10 ${isActive ? 'vapi-mic-btn-active' : 'vapi-mic-btn-inactive'}`}
                       aria-label="Toggle microphone"
-                      onClick={isActive ? start : stop } disabled={ status === 'connecting...' }
+                      onClick={isActive ? stop : start } disabled={ isConnecting }
                     >
                       {isActive ? (
                         <Mic className="size-7 bg-neutral-100" />                        
@@ -84,8 +94,8 @@ const VapiControls = ( {book}: {book: IBook}) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Status Indicator */}
                     <div className="vapi-status-indicator">
-                      <span className="vapi-status-dot vapi-status-dot-ready"></span>
-                      <span className="vapi-status-text">{ status }</span>
+                    <span className={`vapi-status-dot ${statusDotClass[status] ?? 'vapi-status-dot-ready'}`} />
+                    <span className="vapi-status-text capitalize">{status}</span>
                     </div>
      
                     {/* Voice Label */}
